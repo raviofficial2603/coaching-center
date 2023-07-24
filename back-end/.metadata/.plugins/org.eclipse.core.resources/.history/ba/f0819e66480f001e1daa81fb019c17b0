@@ -1,0 +1,59 @@
+package com.awitez.candidate.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.awitez.candidate.entity.Candidate;
+import com.awitez.candidate.service.CandidateService;
+import com.awitez.entity.UserInfo;
+@RestController
+@RequestMapping("/candidate")
+@CrossOrigin
+public class CandidateController {
+
+	
+	@Autowired
+	private CandidateService candidateService;
+	
+	@PostMapping("/create")
+	public Candidate createCandidate(@RequestBody Candidate candidate)
+	{
+		return candidateService.createCandidate(candidate);
+	}
+	
+	@GetMapping("/candidates")
+	public List<Candidate> getAllCandidates(){
+		return candidateService.getAllCandidates();
+	}
+	
+	@GetMapping("/candidates/{id}")
+	public Candidate getCandidate(@PathVariable long id) {
+		return candidateService.getCandidate(id);
+	}
+	@PutMapping("/update/{id}")
+	public Candidate updateCandidate(@RequestBody Candidate candidate,@PathVariable long id) {
+		return candidateService.updateCandidate(candidate, id);
+	}
+	@DeleteMapping("/delete/{id}")
+	public void deleteCandidate(@PathVariable long id) {
+		candidateService.deleteCandidate(id);
+	}
+	@GetMapping("/is-present/{id}")
+	public boolean isPresent(@PathVariable long id) {
+		return candidateService.isPresent(id);
+	}
+	@GetMapping("auth-user/{email}")
+	public String authUser(@PathVariable String email) {
+		return candidateService.authUser(email);
+	}
+}

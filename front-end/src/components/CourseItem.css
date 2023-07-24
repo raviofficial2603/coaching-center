@@ -1,0 +1,24 @@
+.overflow{
+    overflow: hidden;
+
+}
+.card-img-top{
+    transform: scale(0.7);
+    transition: transform 0.5s ease;
+    object-fit: contain;
+    height: 300px;
+    object-fit: cover;
+}
+.card-img-top:hover{
+    transform: scale(0.9);
+}
+.course-card{
+    height: 500px;
+}
+.card-text{
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}

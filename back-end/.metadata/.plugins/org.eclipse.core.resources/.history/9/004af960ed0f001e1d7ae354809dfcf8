@@ -1,0 +1,361 @@
+package com.awitez.admin.serviceimpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.RestTemplate;
+
+import com.awitez.admin.exception.CustomNotFoundException;
+import com.awitez.admin.payload.AuthRequest;
+import com.awitez.admin.payload.Batch;
+import com.awitez.admin.payload.BatchResponse;
+import com.awitez.admin.payload.Branch;
+import com.awitez.admin.payload.Candidate;
+import com.awitez.admin.payload.Course;
+
+import com.awitez.admin.payload.Enrollment;
+import com.awitez.admin.payload.Mentor;
+import com.awitez.admin.service.AdminService;
+
+
+@Service
+public class AdminServiceImpl implements AdminService{
+
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	@Override
+	public Batch createBatch(Batch batch) {
+		long assignedMentorId = batch.getAssignedMentorId();
+		long branchId = batch.getBranchId();
+		long courseId = batch.getCourseId();
+		
+		if(!restTemplate.getForObject("http://MENTOR-SERVICE/mentor/is-present/"+assignedMentorId,Boolean.class)) {
+			throw new CustomNotFoundException("Mentor not found with id:"+assignedMentorId);
+		}
+		else if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+branchId,Boolean.class)) {
+			throw new CustomNotFoundException("Branch not found with id:"+branchId);
+		}
+		else if(!restTemplate.getForObject("http://COURSE-SERVICE/course/is-present/"+courseId,Boolean.class)) {
+			throw new CustomNotFoundException("Course not found with id:"+courseId);
+		}
+		Batch createdBatch = restTemplate.postForObject("http://BATCH-SERVICE/batch/create", batch, Batch.class);
+		return createdBatch;
+	}
+
+	@Override
+	public List<BatchResponse> getAllBatches() {
+		return restTemplate.getForObject("http://BATCH-SERVICE/batch/batches", List.class);
+	}
+
+	@Override
+	public Batch getBatch(long id) {
+		if(!restTemplate.getForObject("http://BATCH-SERVICE/batch/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("batch not found with id:"+id);
+		return restTemplate.getForObject("http://BATCH-SERVICE/batch/batches/"+id,Batch.class);
+	}
+
+	@Override
+	public void updateBatch(Batch batch, long id) {
+		if(!restTemplate.getForObject("http://BATCH-SERVICE/batch/is-present//"+id, Boolean.class))
+			throw new CustomNotFoundException("batch not found with id:"+id);
+		long assignedMentorId = batch.getAssignedMentorId();
+		long branchId = batch.getBranchId();
+		long courseId = batch.getCourseId();
+		System.out.println("Here");
+		if(!restTemplate.getForObject("http://MENTOR-SERVICE/mentor/is-present/"+assignedMentorId,Boolean.class)) {
+			throw new CustomNotFoundException("Mentor not found with id:"+assignedMentorId);
+		}
+		else if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+branchId,Boolean.class)) {
+			throw new CustomNotFoundException("Branch not found with id:"+branchId);
+		}
+		else if(!restTemplate.getForObject("http://COURSE-SERVICE/course/is-present/"+courseId,Boolean.class)) {
+			throw new CustomNotFoundException("Course not found with id:"+courseId);
+		}
+		
+		restTemplate.put("http://BATCH-SERVICE/batch/update/"+id, batch, Batch.class);
+	}
+
+	@Override
+	public void deleteBatch(long id) {
+		if(!restTemplate.getForObject("http://BATCH-SERVICE/batch/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("batch not found with id:"+id);
+		restTemplate.delete("http://BATCH-SERVICE/batch/delete/"+id);
+	}
+
+	@Override
+	public List<Branch> getAllBranches() {
+		return restTemplate.getForObject("http://BRANCH-SERVICE/branch/branches", List.class);
+		
+	}
+
+	@Override
+	public Branch getBranch(long id) {
+		if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("branch not found with id:"+id);
+
+
+		return restTemplate.getForObject("http://BRANCH-SERVICE/branch/branches/"+id,Branch.class);
+	}
+
+	@Override
+	public Branch createBranch(Branch branch) {
+		
+		return restTemplate.postForObject("http://BRANCH-SERVICE/branch/create", branch, Branch.class);
+	}
+
+	@Override
+	public void updateBranch(Branch branch, long id) {
+		if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("branch not found with id:"+id);
+
+
+		restTemplate.put("http://BRANCH-SERVICE/branch/update/"+id, branch, Branch.class);
+	}
+
+	@Override
+	public void deleteBranch(long id) {
+		if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("branch not found with id:"+id);
+		restTemplate.delete("http://BRANCH-SERVICE/branch/delete/"+id);
+
+	}
+
+	@Override
+	public List<Candidate> getAllCandidates() {
+		return restTemplate.getForObject("http://CANDIDATE-SERVICE/candidate/candidates", List.class);	
+		}
+
+	@Override
+	public Candidate getCandidate(long id) {
+		if(!restTemplate.getForObject("http://CANDIDATE-SERVICE/candidate/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("candidate not found with id:"+id);
+
+
+		return restTemplate.getForObject("http://CANDIDATE-SERVICE/candidate/candidates/"+id,Candidate.class);
+	}
+
+	
+
+	@Override
+	public void deleteCandidate(long id) {
+		if(!restTemplate.getForObject("http://CANDIDATE-SERVICE/candidate/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("candidate not found with id:"+id);
+
+
+		restTemplate.delete("http://CANDIDATE-SERVICE/candidate/delete/"+id);
+
+	}
+
+	@Override
+	public List<Course> getAllCourses() {
+		return restTemplate.getForObject("http://COURSE-SERVICE/course/courses", List.class);	
+	}
+
+	@Override
+	public Course getCourse(long id) {
+		if(!restTemplate.getForObject("http://COURSE-SERVICE/course/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("course not found with id:"+id);
+
+
+		return restTemplate.getForObject("http://COURSE-SERVICE/course/courses/"+id,Course.class);
+	}
+
+	@Override
+	public Course createCourse(Course course) {
+		
+		return restTemplate.postForObject("http://COURSE-SERVICE/course/create", course, Course.class);
+	}
+
+	@Override
+	public void updateCourse(Course course, long id) {
+		if(!restTemplate.getForObject("http://COURSE-SERVICE/course/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("course not found with id:"+id);
+
+
+		restTemplate.put("http://COURSE-SERVICE/course/update/"+id, course, Course.class);
+	}
+
+	@Override
+	public void deleteCourse(long id) {
+		if(!restTemplate.getForObject("http://COURSE-SERVICE/course/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("course not found with id:"+id);
+
+
+		restTemplate.delete("http://COURSE-SERVICE/course/delete/"+id);
+
+	}
+
+	@Override
+	public List<Enrollment> getAllEnrollments() {
+		return restTemplate.getForObject("http://ENROLLMENT-SERVICE/enrollment/enrollments", List.class);
+	}
+
+	@Override
+	public Enrollment getEnrollment(long id) {
+		if(!restTemplate.getForObject("http://ENROLLMENT-SERVICE/enrollment/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("enrollment not found with id:"+id);
+
+
+		return restTemplate.getForObject("http://ENROLLMENT-SERVICE/enrollment/enrollments/"+id,Enrollment.class);	}
+
+	@Override
+	public void updateEnrollment(Enrollment enrollment, long id) {
+		if(!restTemplate.getForObject("http://ENROLLMENT-SERVICE/enrollment/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("enrollment not found with id:"+id);
+		long batchId = enrollment.getBatchId();
+		long branchId = enrollment.getBranchId();
+		long candidateId = enrollment.getCandidateId();
+		long courseId = enrollment.getCourseId();
+		System.out.println(branchId);
+		
+		if(!restTemplate.getForObject("http://BATCH-SERVICE/batch/is-present/"+batchId,Boolean.class)) {
+			throw new CustomNotFoundException("Batch not found with id:"+batchId);
+		}
+		else if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+branchId,Boolean.class)) {
+			System.out.println("in admin service method"+branchId);
+			throw new CustomNotFoundException("Branch not found with id:"+branchId);
+		}
+		else if(!restTemplate.getForObject("http://CANDIDATE-SERVICE/candidate/is-present/"+candidateId,Boolean.class)) {
+			throw new CustomNotFoundException("Candidate not found with id:"+candidateId);
+		}
+		else if(!restTemplate.getForObject("http://COURSE-SERVICE/course/is-present/"+courseId,Boolean.class)) {
+			throw new CustomNotFoundException("Course not found with id:"+courseId);
+		}
+	
+		restTemplate.put("http://ENROLLMENT-SERVICE/enrollment/update/"+id, enrollment, Enrollment.class);
+	}
+
+	@Override
+	public void deleteEnrollment(long id) {
+		if(!restTemplate.getForObject("http://ENROLLMENT-SERVICE/enrollment/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("enrollment not found with id:"+id);
+
+
+		restTemplate.delete("http://ENROLLMENT-SERVICE/enrollment/delete/"+id);
+
+	}
+
+	@Override
+	public Mentor createMentor(Mentor mentor) {
+		return restTemplate.postForObject("http://MENTOR-SERVICE/mentor/create", mentor, Mentor.class);
+	}
+
+	@Override
+	public List<Mentor> getAllMentors() {
+		return restTemplate.getForObject("http://MENTOR-SERVICE/mentor/mentors", List.class);	}
+
+	@Override
+	public Mentor getMentor(long id) {
+		if(!restTemplate.getForObject("http://MENTOR-SERVICE/mentor/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("mentor not found with id:"+id);
+		return restTemplate.getForObject("http://MENTOR-SERVICE/mentor/mentors/"+id,Mentor.class);
+		}
+
+	@Override
+	public void updateMentor(Mentor mentor, long id) {
+		if(!restTemplate.getForObject("http://MENTOR-SERVICE/mentor/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("mentor not found with id:"+id);
+		if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+mentor.getBranchId(),Boolean.class)) {
+			throw new CustomNotFoundException("Branch not found with id:"+mentor.getBranchId());
+		}
+		restTemplate.put("http://MENTOR-SERVICE/mentor/update/"+id, mentor, Mentor.class);	}
+
+	@Override
+	public void deleteMentor(long id) {
+		if(!restTemplate.getForObject("http://MENTOR-SERVICE/mentor/is-present/"+id, Boolean.class))
+			throw new CustomNotFoundException("mentor not found with id:"+id);
+		restTemplate.delete("http://MENTOR-SERVICE/mentor/delete/"+id);
+	}
+
+
+	public void assignBatchToEnrollment(long batchId,long enrollmentId) {
+		if(!restTemplate.getForObject("http://BATCH-SERVICE/batch/is-present/"+batchId, Boolean.class))
+			throw new CustomNotFoundException("batch not found with id:"+batchId);
+		if(!restTemplate.getForObject("http://ENROLLMENT-SERVICE/enrollment/is-present/"+enrollmentId, Boolean.class))
+			throw new CustomNotFoundException("enrollment not found with id:"+enrollmentId);
+
+
+		Enrollment updatedEnrollment=this.getEnrollment(enrollmentId);
+		this.getBatch(batchId);
+		updatedEnrollment.setBatchId(batchId);
+		this.updateEnrollment(updatedEnrollment, enrollmentId);
+		}
+
+	@Override
+	public void updateIsCompleted(boolean isCompleted, long batchId) {
+		if(!restTemplate.getForObject("http://BATCH-SERVICE/batch/is-present/"+batchId, Boolean.class))
+			throw new CustomNotFoundException("batch not found with id:"+batchId);
+
+		Batch updatedBatch=this.getBatch(batchId);
+		
+		updatedBatch.setCompleted(isCompleted);
+		 this.updateBatch(updatedBatch, batchId);
+	}
+
+	@Override
+	public void updateEnrollmentStatus(String enrollmentStatus, long enrollmentId) {
+		if(!restTemplate.getForObject("http://ENROLLMENT-SERVICE/enrollment/is-present/"+enrollmentId, Boolean.class))
+			throw new CustomNotFoundException("enrollment not found with id:"+enrollmentId);
+
+		Enrollment updatedEnrollment=this.getEnrollment(enrollmentId);
+		updatedEnrollment.setEnrollmentStatus(enrollmentStatus);
+		this.updateEnrollment(updatedEnrollment, enrollmentId);
+	}
+
+	@Override
+	public Course addCourseToBranch(long courseId, long branchId) {
+		if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+branchId, Boolean.class))
+			throw new CustomNotFoundException("branch not found with id:"+branchId);
+		if(!restTemplate.getForObject("http://COURSE-SERVICE/course/is-present/"+courseId, Boolean.class))
+			throw new CustomNotFoundException("course not found with id:"+courseId);
+
+		return restTemplate.getForObject("http://COURSE-SERVICE/course/addCourseToBranch/"+courseId+"/"+branchId, Course.class);
+	}
+
+	@Override
+	public List<Mentor> getMentorsByBranchId(long branchId) {
+		if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+branchId, Boolean.class))
+			throw new CustomNotFoundException("branch not found with id:"+branchId);
+
+		return restTemplate.getForObject("http://MENTOR-SERVICE/mentor/get-mentors-by-branchId/"+branchId, List.class);
+	}
+
+	@Override
+	public void deleteCourseBranch(long courseId, long branchId) {
+		if(!restTemplate.getForObject("http://BRANCH-SERVICE/branch/is-present/"+branchId, Boolean.class))
+			throw new CustomNotFoundException("branch not found with id:"+branchId);
+		if(!restTemplate.getForObject("http://COURSE-SERVICE/course/is-present/"+courseId, Boolean.class))
+			throw new CustomNotFoundException("course not found with id:"+courseId);
+
+		restTemplate.delete("http://COURSE-SERVICE/course/delete-course-branch/"+courseId+"/"+branchId);
+	}
+	public static String Password_Hash(
+	        String password)
+	    {
+	        return BCrypt.hashpw(
+	            password, BCrypt.gensalt());
+	    }
+	 public static boolean Verify_Password(
+		        String password,
+		        String hashed_password)
+		    {
+		        return BCrypt.checkpw(
+		            password, hashed_password);
+		    }
+	@Override
+	public boolean adminAuth(@RequestBody AuthRequest authRequest) {
+		System.out.println(authRequest);
+		// TODO Auto-generated method stub
+		if(Verify_Password(authRequest.getPassword(), Password_Hash("admin")))
+			return true;
+		else
+		return false;
+	} 
+	
+
+	
+}

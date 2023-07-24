@@ -1,0 +1,4 @@
+server.port=1111
+spring.application.name=GATEWAY-SERVICE
+
+eureka.instance.hostname=localhost

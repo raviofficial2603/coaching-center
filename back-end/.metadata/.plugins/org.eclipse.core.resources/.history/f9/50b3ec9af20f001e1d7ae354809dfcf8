@@ -1,0 +1,23 @@
+package com.awitez.candidate.service;
+
+
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import com.awitez.candidate.entity.Candidate;
+import com.awitez.candidate.payload.AuthRequest;
+import com.awitez.entity.UserInfo;
+@Service
+public interface CandidateService {
+	public Candidate createCandidate(Candidate candidate);
+	public java.util.List<Candidate> getAllCandidates();
+	public Candidate getCandidate(long id);
+	public Candidate updateCandidate(Candidate candidate, long id);
+	public void deleteCandidate(long id);
+	public boolean isPresent(long id);
+	public String authUser(AuthRequest authRequest);
+	
+	
+}

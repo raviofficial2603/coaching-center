@@ -1,0 +1,53 @@
+package com.javatechie.controller;
+
+import com.javatechie.dto.Product;
+import com.javatechie.entity.UserInfo;
+import com.javatechie.service.ProductService;
+
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+	 @Autowired
+	    private AuthenticationManager authenticationManager;
+
+    @GetMapping("/welcome")
+    public String welcome() {
+        return "Welcome this endpoint is not secure";
+    }
+
+    @PostMapping("/new")
+    public String addNewUser(@RequestBody UserInfo userInfo){
+        return "in new";
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public String getAllTheProducts() {
+        return "in get all";
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public String getProductById(@PathVariable int id) {
+        return "from getbyid:"+id;
+    }
+    @PostMapping("/authenticate")
+    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+        if (authentication.isAuthenticated()) {
+           
+        } else {
+           
+        }
+
+
+    }
+}

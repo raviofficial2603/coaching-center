@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: GATEWAY-SERVICE
+  cloud:
+    gateway:
+      routes:
+        - id: admin-service
+          uri: lb://ADMIN-SERVICE
+          predicates:
+            - Path=/admin/**
+          filters:
+            - name: AuthenticationFilter
+#              args:
+#                name: admin-service
+#                fallbackuri: forward:/adminFallBack
+        - id: batch-service
+          uri: lb://BATCH-SERVICE
+          predicates:
+            - Path=/batch/**
+          filters:
+            - name: AuthenticationFilter
+#              args:
+#                name: batch-service
+#                fallbackuri: forward:/batchFallBack
+        - id: branch-service
+          uri: lb://BRANCH-SERVICE
+          predicates:
+            - Path=/branch/**
+          filters:
+            - name: AuthenticationFilter
+           #              args:
+#                name: branch-service
+#                fallbackuri: forward:/branchFallBack
+        - id: candidate-service
+          uri: lb://CANDIDATE-SERVICE
+          predicates:
+            - Path=/candidate/**
+#          filters:
+#            - name: CircuitBreaker
+#              args:
+#                name: candidate-service
+#                fallbackuri: forward:/candidateFallBack
+        - id: course-service
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/course/**
+          filters:
+            - name: AuthenticationFilter
+#              args:
+#                name: course-service
+#                fallbackuri: forward:/courseFallBack
+        - id: enrollment-service
+          uri: lb://ENROLLMENT-SERVICE
+          predicates:
+            - Path=/enrollment/**
+          filters:
+            - name: AuthenticationFilter
+#              args:
+#                name: enrollment-service
+#                fallbackuri: forward:/enrollmentFallBack
+        - id: mentor-service
+          uri: lb://MENTOR-SERVICE
+          predicates:
+            - Path=/mentor/**
+          filters:
+            - name: AuthenticationFilter
+#              args:
+#                name: mentor-service
+#                fallbackuri: forward:/mentorFallBack
+#        
+  
+   
+        - id: identity-service
+          uri: lb://IDENTITY-SERVICE
+          predicates:
+            - Path=/auth/**            
+           
+ 
+server:
+  port: 1111
+
+  
+ 
